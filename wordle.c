@@ -22,13 +22,13 @@
  *   - Displays the secret word if the user runs out of attempts.
  *
  * Functions:
- *   - void check_guess(const char *secret, const char *guess, char *result):
- *       Compares the user's guess with the secret word and fills the result array with feedback characters.
+ *   - void check_guess(const char *secret, const char *guess, int *result):
+ *       Compares the user's guess with the secret word and fills the result array with appropriate score.
  *
  *   - char* choose_random_word(const char* filename):
  *       Reads words from a file, selects a random valid word, and returns it.
  *
- *   - void display_result(const char *guess, const char *result):
+ *   - void display_result(const char *guess, const int *result):
  *       Displays the user's guess with color-coded feedback based on the result array.
  *
  * Usage:
@@ -48,6 +48,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <time.h>
+#include "wordle.h"
 
 #define WORD_LENGTH 5
 #define MAX_ATTEMPTS 6
@@ -63,14 +64,13 @@
 #define GREY_BACKGROUND "\033[100m"
 #define WHITE_TEXT "\033[97m"
 
-void check_guess(const char *secret, const char *guess, char *result) {
+void check_guess(const char *secret, const char *guess, int *result) {
     bool letter_used[WORD_LENGTH] = {false}; // Track used letters in the secret word
 
     // Initialize the result array
     for (int i = 0; i < WORD_LENGTH; i++) {
-        result[i] = '-';
+        result[i] = 0;
     }
-    result[WORD_LENGTH] = '\0';
 
     // First pass: Check for correct positions
     for (int i = 0; i < WORD_LENGTH; i++) {
@@ -82,7 +82,7 @@ void check_guess(const char *secret, const char *guess, char *result) {
 
     // Second pass: Check for correct letters in wrong positions
     for (int i = 0; i < WORD_LENGTH; i++) {
-        if (result[i] != '%') {
+        if (result[i] != CORRECT_LETTER_CORRECT_POSITION) {
             for (int j = 0; j < WORD_LENGTH; j++) {
                 if (!letter_used[j] && tolower(guess[i]) == tolower(secret[j])) {
                     result[i] = CORRECT_LETTER_WRONG_POSITION;
@@ -130,7 +130,7 @@ char *choose_random_word(const char *filename) {
     return chosen_word;
 }
 
-void display_result(const char *guess, const char *result) {
+void display_result(const char *guess, const int *result) {
     printf("Result: ");
     for (int i = 0; i < WORD_LENGTH; i++) {
         if (result[i] == CORRECT_LETTER_CORRECT_POSITION) {
@@ -175,6 +175,7 @@ int main(void) {
         for (int i = 0; i < WORD_LENGTH; i++) {
             total_points += result[i];
         }
+
         if (total_points == 10) {
             guessed_correctly = true;
             printf("Congratulations! You've guessed the word!\n");
