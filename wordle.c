@@ -53,6 +53,9 @@
 #define MAX_ATTEMPTS 6
 #define MAX_WORDS 1500 // Maximum number of words that can be stored
 
+#define CORRECT_LETTER_CORRECT_POSITION 2
+#define CORRECT_LETTER_WRONG_POSITION 1
+
 // ANSI escape codes for colors
 #define RESET_COLOR "\033[0m"
 #define GREEN_BACKGROUND "\033[42m"
@@ -72,7 +75,7 @@ void check_guess(const char *secret, const char *guess, char *result) {
     // First pass: Check for correct positions
     for (int i = 0; i < WORD_LENGTH; i++) {
         if (tolower(guess[i]) == tolower(secret[i])) {
-            result[i] = '%'; // Correct letter and position
+            result[i] = CORRECT_LETTER_CORRECT_POSITION;
             letter_used[i] = true;
         }
     }
@@ -82,7 +85,7 @@ void check_guess(const char *secret, const char *guess, char *result) {
         if (result[i] != '%') {
             for (int j = 0; j < WORD_LENGTH; j++) {
                 if (!letter_used[j] && tolower(guess[i]) == tolower(secret[j])) {
-                    result[i] = '?'; // Correct letter, wrong position
+                    result[i] = CORRECT_LETTER_WRONG_POSITION;
                     letter_used[j] = true;
                     break;
                 }
@@ -130,11 +133,10 @@ char *choose_random_word(const char *filename) {
 void display_result(const char *guess, const char *result) {
     printf("Result: ");
     for (int i = 0; i < WORD_LENGTH; i++) {
-        if (result[i] == '%') {
+        if (result[i] == CORRECT_LETTER_CORRECT_POSITION) {
             // Correct letter and position (green background)
-
             printf("%s%c%s ", GREEN_BACKGROUND WHITE_TEXT, toupper(guess[i]), RESET_COLOR);
-        } else if (result[i] == '?') {
+        } else if (result[i] == CORRECT_LETTER_WRONG_POSITION) {
             // Correct letter, wrong position (yellow background)
             printf("%s%c%s ", YELLOW_BACKGROUND WHITE_TEXT, toupper(guess[i]), RESET_COLOR);
         } else {
@@ -148,7 +150,7 @@ void display_result(const char *guess, const char *result) {
 int main(void) {
     char *secret_word = choose_random_word("word_list.txt");
     char guess[WORD_LENGTH + 1];
-    char result[WORD_LENGTH + 1];
+    int result[WORD_LENGTH];
     int attempts = 0;
     bool guessed_correctly = false;
 
@@ -168,7 +170,12 @@ int main(void) {
         check_guess(secret_word, guess, result);
         display_result(guess, result);
 
-        if (strcmp(result, "%%%%%") == 0) {
+        // Calculate the total points
+        int total_points = 0;
+        for (int i = 0; i < WORD_LENGTH; i++) {
+            total_points += result[i];
+        }
+        if (total_points == 10) {
             guessed_correctly = true;
             printf("Congratulations! You've guessed the word!\n");
         } else {
