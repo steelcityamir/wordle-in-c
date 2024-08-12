@@ -1,4 +1,4 @@
-<img src="https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white" alt="C">
+<img src="https://img.shields.io/badge/LANGUAGE-C-00599C.svg?style=for-the-badge" alt="C"> <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="MIT License">
 
 # Wordle in C
 A command-line implementation of a Wordle-like game in C. The game prompts the user to guess a secret 5-letter word, providing color-coded feedback on each guess.
