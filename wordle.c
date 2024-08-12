@@ -50,28 +50,27 @@
 #include <time.h>
 #include "wordle.h"
 
-void check_guess(const char *secret, const char *guess, int *result) {
+void check_guess(const char *secret, const char *guess, int *scores) {
     bool letter_used[WORD_LENGTH] = {false}; // Track used letters in the secret word
 
-    // Initialize the result array
-    for (int i = 0; i < WORD_LENGTH; i++) {
-        result[i] = 0;
-    }
+    // Initialize the result array with zeroes
+    // This is critical to calculating the correct score for each guessflame
+    memset(scores, 0, WORD_LENGTH * sizeof(int));
 
     // First pass: Check for correct positions
     for (int i = 0; i < WORD_LENGTH; i++) {
         if (tolower(guess[i]) == tolower(secret[i])) {
-            result[i] = CORRECT_LETTER_CORRECT_POSITION;
+            scores[i] = CORRECT_LETTER_CORRECT_POSITION;
             letter_used[i] = true;
         }
     }
 
     // Second pass: Check for correct letters in wrong positions
     for (int i = 0; i < WORD_LENGTH; i++) {
-        if (result[i] != CORRECT_LETTER_CORRECT_POSITION) {
+        if (scores[i] != CORRECT_LETTER_CORRECT_POSITION) {
             for (int j = 0; j < WORD_LENGTH; j++) {
                 if (!letter_used[j] && tolower(guess[i]) == tolower(secret[j])) {
-                    result[i] = CORRECT_LETTER_WRONG_POSITION;
+                    scores[i] = CORRECT_LETTER_WRONG_POSITION;
                     letter_used[j] = true;
                     break;
                 }
@@ -136,7 +135,7 @@ void display_result(const char *guess, const int *result) {
 int main(void) {
     char *secret_word = choose_random_word("word_list.txt");
     char guess[WORD_LENGTH + 1];
-    int result[WORD_LENGTH];
+    int scores[WORD_LENGTH];
     int attempts = 0;
     bool guessed_correctly = false;
 
@@ -153,16 +152,16 @@ int main(void) {
             continue;
         }
 
-        check_guess(secret_word, guess, result);
-        display_result(guess, result);
+        check_guess(secret_word, guess, scores);
+        display_result(guess, scores);
 
         // Calculate the total points
         int total_points = 0;
         for (int i = 0; i < WORD_LENGTH; i++) {
-            total_points += result[i];
+            total_points += scores[i];
         }
 
-        if (total_points == 10) {
+        if (total_points == WORD_LENGTH * CORRECT_LETTER_CORRECT_POSITION) {
             guessed_correctly = true;
             printf("Congratulations! You've guessed the word!\n");
         } else {
