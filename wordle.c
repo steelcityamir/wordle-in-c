@@ -54,7 +54,7 @@ void check_guess(const char *secret, const char *guess, int *scores) {
     bool letter_used[WORD_LENGTH] = {false}; // Track used letters in the secret word
 
     // Initialize the result array with zeroes
-    // This is critical to calculating the correct score for each guessflame
+    // This is critical to calculating the correct score for each guess
     memset(scores, 0, WORD_LENGTH * sizeof(int));
 
     // First pass: Check for correct positions
