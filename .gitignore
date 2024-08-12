@@ -51,3 +51,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 wordle
+
+
+**/cmake-build-debug
+.idea/
